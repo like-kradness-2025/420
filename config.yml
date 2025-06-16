@@ -1,0 +1,29 @@
+# Discord 送信先
+discord_webhook_url: ""
+
+# SQLite DB 保存先
+db_path: "btc_volume.db"
+
+# チャート生成対象の look-back 期間 (分)
+chart_lookback_minutes: 120
+
+# 監視タイムフレーム
+timeframe: "1m"
+
+# 取引所定義
+exchanges:
+  binance:
+    id: "binance"
+    pairs: ["BTC/FDUSD", "BTC/USDT", "BTC/USDC"]
+  coinbase:
+    id: "coinbase"
+    pairs: ["BTC/USD", "BTC/USDC", "BTC/USDT"]
+  kraken:
+    id: "kraken"
+    pairs: ["XBT/USD", "XBT/EUR", "XBT/USDT"]
+  bitstamp:
+    id: "bitstamp"
+    pairs: ["BTC/USD", "BTC/EUR", "BTC/USDT"]
+
+# 出力チャートパス
+chart_path: "chart.png"

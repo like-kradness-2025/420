@@ -1,0 +1,5 @@
+ccxt>=4.1.62
+pandas>=2.1
+matplotlib>=3.7
+requests>=2.31
+PyYAML>=6.0
