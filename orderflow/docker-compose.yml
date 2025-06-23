@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+  postgres:
+    image: timescale/timescaledb:latest-pg15
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: orderflow
+    ports: ["5432:5432"]
+  collector:
+    build: .
+    command: python -m collector
+    depends_on: [redis]
+    environment:
+      REDIS_URL: redis://redis:6379/0
+  db_writer:
+    build: .
+    command: python -m db_writer
+    depends_on: [redis, postgres]
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      PG_DSN: postgresql://postgres:postgres@postgres:5432/orderflow
