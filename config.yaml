@@ -1,0 +1,6 @@
+# Sample configuration for stablecoin_monitor.py
+coinmarketcap_key: "YOUR_API_KEY_HERE"
+discord_webhook: "https://discord.com/api/webhooks/XXXX/XXXX"
+interval_sec: 300
+chart_dir: "charts"
+db_path: "stablecoin_history.db"
