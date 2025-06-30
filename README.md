@@ -1,40 +1,44 @@
-# Stablecoin Monitor
+# Crypto Monitoring Tools
 
-This project provides a Python script to track major stablecoins using the CoinMarketCap API. It stores recent data in SQLite, generates weekly charts, and optionally sends updates to Discord.
+This repository contains two small Python projects:
 
-## Features
+1. **Stablecoin Monitor** – tracks major stablecoins via the CoinMarketCap API.
+2. **BTC-USD TPO/CVA Bot** – builds Market Profile statistics from Coinbase 1m data and posts charts to Discord.
 
-- Monitors USDT, USDC, FDUSD, TUSD and DAI
-- Records price and 24h volume every five minutes
-- Keeps one week of history in a SQLite database
-- Generates charts using matplotlib
-- Sends the latest chart and numbers to a Discord webhook
+## Stablecoin Monitor
 
-## Setup
+The original script `stablecoin_monitor.py` records USDT, USDC, FDUSD, TUSD and DAI prices and 24h volume every five minutes. Data is stored in SQLite and a weekly chart is produced. If `discord_webhook` is configured, the latest snapshot is posted automatically.
 
-1. Install Python 3.11 or newer.
-2. Install required packages:
-   ```sh
-   pip install pandas matplotlib requests pyyaml
-   ```
-3. Copy `config.yaml` and edit your CoinMarketCap API key and Discord webhook URL.
-4. Run the script:
-   ```sh
-   python stablecoin_monitor.py
-   ```
+### Usage
 
-The script will continue running, fetching new data every five minutes.
+```bash
+pip install pandas matplotlib requests pyyaml
+python stablecoin_monitor.py
+```
 
-## Configuration
+Configuration keys for this script live in `config.yaml` (see comments inside).
 
-Configuration is stored in `config.yaml`:
+## BTC-USD TPO/CVA Bot
 
-- `coinmarketcap_key`: your API key from CoinMarketCap
-- `discord_webhook`: webhook URL to post updates (leave blank to disable)
-- `interval_sec`: fetch interval in seconds (default 300)
-- `chart_dir`: directory to save chart images
-- `db_path`: SQLite database file
+This bot fetches Coinbase BTC-USD candles, calculates daily value areas and composite value areas, then plots the last few days and posts a PNG to Discord.
 
-## Notes
+Run manually with:
 
-Network access may be required to contact the CoinMarketCap API and Discord. If running in a restricted environment, ensure those domains are allowed.
+```bash
+python runner.py --days 7
+```
+
+Configuration options in `config.yaml` include:
+
+- `pair` – trading pair (default `BTC-USD`)
+- `bin_size` – price bin in USD for profiles
+- `max_cva_days` – maximum days merged into one composite profile
+- `overlap_threshold` – required VA overlap to extend a composite
+- `tpo_db_path` – SQLite file used by the bot
+- `tpo_webhook_url` – Discord Webhook to receive charts
+
+The bot keeps roughly one month of OHLCV history.
+
+## License
+
+MIT License. See `LICENSE` for details.

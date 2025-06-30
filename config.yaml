@@ -1,6 +1,17 @@
-# Sample configuration for stablecoin_monitor.py
+# Stablecoin monitor
 coinmarketcap_key: "YOUR_API_KEY_HERE"
 discord_webhook: "https://discord.com/api/webhooks/XXXX/XXXX"
 interval_sec: 300
 chart_dir: "charts"
 db_path: "stablecoin_history.db"
+
+# BTC-USD TPO/CVA bot
+pair: "BTC-USD"
+bin_size: 20
+session_timezone: "UTC"
+max_cva_days: 7
+overlap_threshold: 0.5
+history_days: 31
+plot_days: 7
+tpo_db_path: "tpo_cva.db"
+tpo_webhook_url: "https://discord.com/api/webhooks/XXXX/XXXX"
