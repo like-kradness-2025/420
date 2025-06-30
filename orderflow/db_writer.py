@@ -1,11 +1,12 @@
 """Consumes Redis streams and flushes to PostgreSQL every FLUSH_SEC seconds."""
-import asyncio, time
+import asyncio, time, datetime as dt
 from utils.redis_client import init_redis, redis_client, close_redis
 from utils.db import init_db, close_db, pg_pool
 from utils.agg import add_trade, flush_buckets
 from settings import FLUSH_SEC
 
 STREAMS = {"orderflow:oi": ">", "orderflow:trade": ">"}
+oi_buffer = []
 GROUP   = "db-writer"
 CONSUMER= "writer-1"
 
@@ -25,8 +26,14 @@ async def process_messages():
                 if stream.endswith(":trade"):
                     add_trade(data["ex"], data["sym"], data["side"], float(data["px"]), float(data["qty"]), int(data["ts"]))
                 elif stream.endswith(":oi"):
-                    # TODO: buffer OI if needed, else insert directly later
-                    pass
+                    oi_buffer.append(
+                        {
+                            "ts": int(data["ts"]),
+                            "exchange": data["ex"],
+                            "symbol": data["sym"],
+                            "open_interest": float(data["oi"]),
+                        }
+                    )
                 await redis_client.xack(stream, GROUP, msg_id)
 
         if time.time() - last_flush >= FLUSH_SEC:
@@ -48,7 +55,19 @@ async def flush_to_db():
                     row["ts"], row["exchange"], row["symbol"], row["side"],
                     row["volume"], row["vwap"], row["trades"], row["min_price"], row["max_price"],
                 )
-            # TODO: insert open_interest_history rows (buffer separately)
+            for row in oi_buffer:
+                await conn.execute(
+                    """
+                    INSERT INTO open_interest_history (ts,exchange,symbol,open_interest)
+                    VALUES ($1,$2,$3,$4)
+                    ON CONFLICT DO NOTHING
+                    """,
+                    dt.datetime.fromtimestamp(row["ts"] / 1000.0, tz=dt.timezone.utc),
+                    row["exchange"],
+                    row["symbol"],
+                    row["open_interest"],
+                )
+            oi_buffer.clear()
 
 async def main():
     await init_redis(); await init_db(); await ensure_groups()
